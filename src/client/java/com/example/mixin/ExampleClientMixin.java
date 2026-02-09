@@ -2,11 +2,10 @@ package com.example.mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.AttackIndicatorStatus;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.AttackIndicator;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,49 +16,49 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(Gui.class)
+@Mixin(InGameHud.class)
 public abstract class ExampleClientMixin {
     
-    @Shadow @Final private Minecraft minecraft;
+    @Shadow @Final private MinecraftClient client;
     
     @Unique
     @Nullable
-    private static AttackIndicatorStatus attackIndicator = null;
+    private static AttackIndicator attackIndicator = null;
     
     @Inject(method = "renderCrosshair", at = @At("HEAD"))
-    public void beforeRenderCrossHair(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    public void beforeRenderCrossHair(DrawContext context, CallbackInfo ci) {
         // Temporarily disable attack indicator
         if (attackIndicator == null) {
-            var option = minecraft.options.attackIndicator();
-            attackIndicator = option.get();
-            option.set(AttackIndicatorStatus.OFF);
+            var option = client.options.getAttackIndicator();
+            attackIndicator = option.getValue();
+            option.setValue(AttackIndicator.OFF);
         }
     }
     
     @Inject(method = "renderCrosshair", at = @At("TAIL"))
-    public void afterRenderCrossHair(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    public void afterRenderCrossHair(DrawContext context, CallbackInfo ci) {
         // Restore attack indicator setting
         if (attackIndicator != null) {
-            minecraft.options.attackIndicator().set(attackIndicator);
+            client.options.getAttackIndicator().setValue(attackIndicator);
             attackIndicator = null;
         }
     }
     
-    @Inject(method = "renderItemHotbar", at = @At("HEAD"))
-    public void beforeRenderHotBar(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    @Inject(method = "renderHotbar", at = @At("HEAD"))
+    public void beforeRenderHotBar(DrawContext context, float tickDelta, CallbackInfo ci) {
         // Temporarily disable attack indicator
         if (attackIndicator == null) {
-            var option = minecraft.options.attackIndicator();
-            attackIndicator = option.get();
-            option.set(AttackIndicatorStatus.OFF);
+            var option = client.options.getAttackIndicator();
+            attackIndicator = option.getValue();
+            option.setValue(AttackIndicator.OFF);
         }
     }
     
-    @Inject(method = "renderItemHotbar", at = @At("TAIL"))
-    public void afterRenderHotBar(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    @Inject(method = "renderHotbar", at = @At("TAIL"))
+    public void afterRenderHotBar(DrawContext context, float tickDelta, CallbackInfo ci) {
         // Restore attack indicator setting
         if (attackIndicator != null) {
-            minecraft.options.attackIndicator().set(attackIndicator);
+            client.options.getAttackIndicator().setValue(attackIndicator);
             attackIndicator = null;
         }
     }
