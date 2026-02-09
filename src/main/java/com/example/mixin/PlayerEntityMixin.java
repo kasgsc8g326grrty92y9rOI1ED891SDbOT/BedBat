@@ -2,11 +2,11 @@ package com.example.mixin;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SwordItem;
+import net.minecraft.item.Item;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin {
@@ -20,7 +20,7 @@ public abstract class PlayerEntityMixin {
         )
     )
     private float removeCooldown(PlayerEntity player, float baseTime) {
-        return 1.0f; // always fully ready to attack
+        return 1.0f;
     }
     
     // Modify sword damage to Bedrock values
@@ -33,18 +33,30 @@ public abstract class PlayerEntityMixin {
         PlayerEntity player = (PlayerEntity) (Object) this;
         ItemStack weapon = player.getMainHandStack();
         
-        if (weapon.getItem() instanceof SwordItem sword) {
-            String material = sword.getMaterial().toString().toLowerCase();
-            return switch (material) {
-                case "wood" -> 4.0f;
-                case "stone" -> 5.0f;
-                case "iron" -> 6.0f;
-                case "gold" -> 4.0f;  // gold same as wood in Bedrock
-                case "diamond" -> 7.0f;
-                case "netherite" -> 8.0f;
-                default -> damage;
-            };
+        if (!weapon.isEmpty()) {
+            String itemId = weapon.getItem().toString().toLowerCase();
+            
+            if (itemId.contains("sword")) {
+                return getSwordDamage(itemId);
+            }
         }
         return damage;
+    }
+    
+    private float getSwordDamage(String itemId) {
+        if (itemId.contains("wooden") || itemId.contains("wood")) {
+            return 4.0f;
+        } else if (itemId.contains("stone")) {
+            return 5.0f;
+        } else if (itemId.contains("iron")) {
+            return 6.0f;
+        } else if (itemId.contains("golden") || itemId.contains("gold")) {
+            return 4.0f;
+        } else if (itemId.contains("diamond")) {
+            return 7.0f;
+        } else if (itemId.contains("netherite")) {
+            return 8.0f;
+        }
+        return 1.0f; // fallback for custom swords
     }
 }
