@@ -11,6 +11,6 @@
     "minecraft": "1.21.10"
   },
   "mixins": [
-    "example.mixins.json"
+    "modid.mixins.json"
   ]
 }
