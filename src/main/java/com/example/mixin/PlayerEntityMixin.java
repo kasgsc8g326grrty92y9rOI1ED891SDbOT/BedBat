@@ -2,7 +2,8 @@ package com.example.mixin;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -20,10 +21,10 @@ public abstract class PlayerEntityMixin {
         )
     )
     private float removeCooldown(PlayerEntity player, float baseTime) {
-        return 1.0f;
+        return 1.0f; // always fully ready to attack
     }
     
-    // Modify sword damage to Bedrock values
+    // Modify weapon damage to Bedrock values
     @ModifyVariable(
         method = "attack",
         at = @At(value = "STORE", ordinal = 0),
@@ -34,29 +35,43 @@ public abstract class PlayerEntityMixin {
         ItemStack weapon = player.getMainHandStack();
         
         if (!weapon.isEmpty()) {
-            String itemId = weapon.getItem().toString().toLowerCase();
+            Identifier itemId = Registries.ITEM.getId(weapon.getItem());
+            String path = itemId.getPath();
             
-            if (itemId.contains("sword")) {
-                return getSwordDamage(itemId);
+            // Check for swords
+            if (path.endsWith("_sword")) {
+                return getSwordDamage(path);
+            }
+            
+            // Check for axes
+            if (path.endsWith("_axe")) {
+                return getAxeDamage(path);
             }
         }
         return damage;
     }
     
-    private float getSwordDamage(String itemId) {
-        if (itemId.contains("wooden") || itemId.contains("wood")) {
-            return 4.0f;
-        } else if (itemId.contains("stone")) {
-            return 5.0f;
-        } else if (itemId.contains("iron")) {
-            return 6.0f;
-        } else if (itemId.contains("golden") || itemId.contains("gold")) {
-            return 4.0f;
-        } else if (itemId.contains("diamond")) {
-            return 7.0f;
-        } else if (itemId.contains("netherite")) {
-            return 8.0f;
-        }
-        return 1.0f; // fallback for custom swords
+    private float getSwordDamage(String itemPath) {
+        return switch (itemPath) {
+            case "wooden_sword" -> 4.0f;
+            case "golden_sword" -> 4.0f;
+            case "stone_sword" -> 5.0f;
+            case "iron_sword" -> 6.0f;
+            case "diamond_sword" -> 7.0f;
+            case "netherite_sword" -> 8.0f;
+            default -> 1.0f; // custom swords
+        };
+    }
+    
+    private float getAxeDamage(String itemPath) {
+        return switch (itemPath) {
+            case "wooden_axe" -> 5.0f;
+            case "golden_axe" -> 5.0f;
+            case "stone_axe" -> 6.0f;
+            case "iron_axe" -> 7.0f;
+            case "diamond_axe" -> 8.0f;
+            case "netherite_axe" -> 9.0f;
+            default -> 1.0f; // custom axes
+        };
     }
 }
