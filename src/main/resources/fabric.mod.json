@@ -11,6 +11,6 @@
     "minecraft": "1.21.10"
   },
   "mixins": [
-    "bedrockcombat.mixins.json"
+    "example.mixins.json"
   ]
 }
