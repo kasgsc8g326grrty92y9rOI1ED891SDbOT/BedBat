@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.option.AttackIndicator;
+import net.minecraft.client.render.RenderTickCounter;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,7 +27,7 @@ public abstract class ExampleClientMixin {
     private static AttackIndicator attackIndicator = null;
     
     @Inject(method = "renderCrosshair", at = @At("HEAD"))
-    public void beforeRenderCrossHair(DrawContext context, CallbackInfo ci) {
+    public void beforeRenderCrossHair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         // Temporarily disable attack indicator
         if (attackIndicator == null) {
             var option = client.options.getAttackIndicator();
@@ -36,7 +37,7 @@ public abstract class ExampleClientMixin {
     }
     
     @Inject(method = "renderCrosshair", at = @At("TAIL"))
-    public void afterRenderCrossHair(DrawContext context, CallbackInfo ci) {
+    public void afterRenderCrossHair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         // Restore attack indicator setting
         if (attackIndicator != null) {
             client.options.getAttackIndicator().setValue(attackIndicator);
@@ -45,7 +46,7 @@ public abstract class ExampleClientMixin {
     }
     
     @Inject(method = "renderHotbar", at = @At("HEAD"))
-    public void beforeRenderHotBar(DrawContext context, float tickDelta, CallbackInfo ci) {
+    public void beforeRenderHotBar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         // Temporarily disable attack indicator
         if (attackIndicator == null) {
             var option = client.options.getAttackIndicator();
@@ -55,7 +56,7 @@ public abstract class ExampleClientMixin {
     }
     
     @Inject(method = "renderHotbar", at = @At("TAIL"))
-    public void afterRenderHotBar(DrawContext context, float tickDelta, CallbackInfo ci) {
+    public void afterRenderHotBar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         // Restore attack indicator setting
         if (attackIndicator != null) {
             client.options.getAttackIndicator().setValue(attackIndicator);
