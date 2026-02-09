@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 import java.util.UUID;
 
-public class BedrockCombatMod implements ModInitializer {
+public class ExampleMod implements ModInitializer {
 
     private static final UUID DAMAGE_MODIFIER = UUID.fromString("9f3a88a8-5f3e-4a4a-9a1d-1f2fda0e4b0c");
 
