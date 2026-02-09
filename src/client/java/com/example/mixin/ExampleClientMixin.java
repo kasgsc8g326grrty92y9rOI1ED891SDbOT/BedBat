@@ -1,4 +1,4 @@
-package com.example.mixin.client;
+package com.example.mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
